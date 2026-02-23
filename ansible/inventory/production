@@ -1,0 +1,16 @@
+# Static Inventory - Production Environment
+
+[webservers]
+web-prod-1 ansible_host=172.16.101.20
+web-prod-2 ansible_host=172.16.102.20
+
+[appservers]
+app-prod-1 ansible_host=172.16.3.30
+app-prod-2 ansible_host=172.16.4.30
+
+[databases]
+db-prod-1 ansible_host=172.16.3.40
+
+[all:vars]
+ansible_user=ec2-user
+ansible_ssh_private_key_file=~/.ssh/afrimart-key

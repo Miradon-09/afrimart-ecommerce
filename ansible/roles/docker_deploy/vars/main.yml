@@ -1,0 +1,10 @@
+---
+# Variables for Docker deploy
+aws_region: "us-east-1"
+ecr_url: "479831562800.dkr.ecr.us-east-1.amazonaws.com"
+backend_repo: "afrimart-backend"
+frontend_repo: "afrimart-frontend"
+db_user: "afrimart"
+db_password: "MyAfriMart2024!"
+db_name: "afrimart_db"
+# rds_endpoint and redis_endpoint are likely already defined in group_vars or inventory

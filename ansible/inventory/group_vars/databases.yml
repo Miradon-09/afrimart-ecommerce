@@ -1,0 +1,23 @@
+---
+# Database server specific variables
+
+# PostgreSQL configuration
+postgresql_version: 14
+postgresql_port: 5432
+postgresql_listen_addresses: "{{ ansible_host }}"
+postgresql_max_connections: 200
+
+# Database settings
+db_name: afrimart
+db_user: afrimart
+db_encoding: UTF-8
+
+# Redis configuration (if running on same host)
+redis_port: 6379
+redis_maxmemory: 1gb
+redis_maxmemory_policy: allkeys-lru
+
+# Backup settings
+backup_enabled: true
+backup_schedule: "0 2 * * *"  # Daily at 2 AM
+backup_retention_days: 30

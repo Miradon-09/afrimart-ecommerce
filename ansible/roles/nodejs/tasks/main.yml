@@ -1,0 +1,63 @@
+---
+# Node.js installation and application deployment
+
+- name: Add NodeSource repository
+  shell: |
+    curl -sL https://rpm.nodesource.com/setup_16.x | bash -
+  tags: [nodejs, appservers]
+  changed_when: false
+
+- name: Install Node.js and npm
+  yum:
+    name:
+      - nodejs
+      - npm
+    state: present
+  tags: [nodejs]
+
+- name: Install PM2 globally
+  npm:
+    name: pm2
+    global: yes
+    state: present
+  tags: [nodejs]
+
+- name: Create .env file
+  copy:
+    content: |
+      NODE_ENV=production
+      PORT=3000
+      LOG_LEVEL=info
+    dest: "{{ app_home }}/.env"
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: "0600"
+  tags: [nodejs, deploy]
+
+- name: Create systemd service file
+  copy:
+    content: |
+      [Unit]
+      Description=AfriMart Application
+      After=network.target
+
+      [Service]
+      Type=simple
+      User={{ app_user }}
+      WorkingDirectory={{ app_home }}
+      EnvironmentFile={{ app_home }}/.env
+      ExecStart=/usr/bin/node server.js
+      Restart=always
+      RestartSec=10
+
+      [Install]
+      WantedBy=multi-user.target
+    dest: /etc/systemd/system/afrimart-app.service
+    mode: "0644"
+  notify: daemon reload
+  tags: [nodejs]
+
+- name: Daemon reload
+  systemd:
+    daemon_reload: yes
+  tags: [nodejs]

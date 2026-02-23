@@ -1,0 +1,73 @@
+---
+# Tasks for Docker deployment
+
+- name: Authenticate with ECR
+  shell: "aws ecr get-login-password --region {{ aws_region }} | docker login --username AWS --password-stdin {{ ecr_url }}"
+  changed_when: false
+
+- name: Stop native PM2 services
+  shell: "pm2 stop all || true && pm2 delete all || true"
+  become_user: afrimart
+  ignore_errors: yes
+  changed_when: false
+  tags: [deploy]
+
+- name: Stop native systemd services
+  service:
+    name: afrimart
+    state: stopped
+    enabled: no
+  ignore_errors: yes
+  tags: [deploy]
+
+- name: Pull Backend Image
+  shell: "docker pull {{ ecr_url }}/{{ backend_repo }}:latest"
+  tags: [deploy, backend]
+
+- name: Stop and remove existing backend container
+  shell: "docker stop backend || true && docker rm backend || true"
+  changed_when: false
+  tags: [deploy, backend]
+
+- name: Run Backend Container
+  shell: |
+    docker run -d \
+      --name backend \
+      --restart always \
+      -p 5000:5000 \
+      -e NODE_ENV=production \
+      -e PORT=5000 \
+      -e DATABASE_URL="postgres://{{ db_user }}:{{ db_password }}@{{ rds_endpoint }}/postgres" \
+      -e REDIS_URL="redis://{{ redis_endpoint }}:6379" \
+      {{ ecr_url }}/{{ backend_repo }}:latest
+  tags: [deploy, backend]
+
+- name: Run Database Migrations
+  shell: "docker exec backend npm run migrate"
+  run_once: true
+  ignore_errors: yes
+  tags: [deploy, db]
+
+- name: Seed Database
+  shell: "docker exec backend npm run seed"
+  run_once: true
+  ignore_errors: yes
+  tags: [deploy, db]
+
+- name: Pull Frontend Image
+  shell: "docker pull {{ ecr_url }}/{{ frontend_repo }}:latest"
+  tags: [deploy, frontend]
+
+- name: Stop and remove existing frontend container
+  shell: "docker stop frontend || true && docker rm frontend || true"
+  changed_when: false
+  tags: [deploy, frontend]
+
+- name: Run Frontend Container
+  shell: |
+    docker run -d \
+      --name frontend \
+      --restart always \
+      -p 3000:80 \
+      {{ ecr_url }}/{{ frontend_repo }}:latest
+  tags: [deploy, frontend]

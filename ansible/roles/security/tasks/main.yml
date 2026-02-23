@@ -1,0 +1,75 @@
+---
+# Security hardening
+
+- name: Install EPEL repository via amazon-linux-extras
+  shell: amazon-linux-extras install epel -y
+  args:
+    creates: /etc/yum.repos.d/epel.repo
+  tags: [security]
+
+- name: Install security packages
+  yum:
+    name:
+      - fail2ban
+      - firewalld
+      - selinux-policy
+    state: present
+  tags: [security]
+
+# - name: Start firewalld
+#   service:
+#     name: firewalld
+#     state: started
+#     enabled: yes
+#   tags: [security]
+
+# - name: Configure firewall rules
+#   firewalld:
+#     port: "{{ item }}/tcp"
+#     permanent: yes
+#     state: enabled
+#     immediate: yes
+#   loop:
+#     - "22"
+#     - "80"
+#     - "443"
+#     - "3000"
+#   tags: [security]
+
+- name: Harden SSH configuration
+  copy:
+    content: |
+      Port 22
+      PermitRootLogin no
+      PubkeyAuthentication yes
+      PasswordAuthentication no
+      PermitEmptyPasswords no
+      X11Forwarding no
+      UsePAM yes
+    dest: /etc/ssh/sshd_config
+    backup: yes
+    mode: "0600"
+  notify: restart sshd
+  tags: [security]
+
+- name: Start and enable fail2ban
+  service:
+    name: fail2ban
+    state: started
+    enabled: yes
+  tags: [security]
+
+- name: Configure fail2ban for SSH
+  copy:
+    content: |
+      [DEFAULT]
+      bantime = 3600
+      findtime = 600
+      maxretry = 5
+
+      [sshd]
+      enabled = true
+    dest: /etc/fail2ban/jail.local
+    mode: "0644"
+  notify: restart fail2ban
+  tags: [security]

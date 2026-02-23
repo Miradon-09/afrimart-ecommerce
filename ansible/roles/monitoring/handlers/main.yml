@@ -1,0 +1,9 @@
+---
+# Monitoring handlers
+
+- name: reload and restart node_exporter
+  systemd:
+    daemon_reload: yes
+    name: node_exporter
+    state: restarted
+    enabled: yes

@@ -1,0 +1,58 @@
+---
+# Common tasks - Run on all hosts
+
+- name: Update package manager cache
+  yum:
+    name: "*"
+    state: latest
+  tags: [always, common]
+  changed_when: false
+
+- name: Install common packages
+  yum:
+    name: "{{ common_packages }}"
+    state: present
+  tags: [common]
+
+- name: Create application group
+  group:
+    name: "{{ app_group }}"
+    state: present
+  tags: [common]
+
+- name: Create application user
+  user:
+    name: "{{ app_user }}"
+    group: "{{ app_group }}"
+    home: "{{ app_home }}"
+    createhome: yes
+    shell: /bin/bash
+    comment: "AfriMart Application User"
+    state: present
+  tags: [common]
+
+- name: Create application directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: "0755"
+  loop:
+    - "{{ app_home }}"
+    - "{{ log_dir }}"
+    - "{{ app_home }}/.ssh"
+  tags: [common]
+
+- name: Set timezone
+  timezone:
+    name: "{{ timezone }}"
+  tags: [common]
+
+- name: Display host information
+  debug:
+    msg:
+      - "Hostname: {{ inventory_hostname }}"
+      - "OS Family: {{ ansible_os_family }}"
+      - "Common configuration completed!"
+  tags: [common]

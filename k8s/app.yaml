@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: afrimart-backend
+  namespace: afrimart
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: afrimart-backend
+  template:
+    metadata:
+      labels:
+        app: afrimart-backend
+    spec:
+      containers:
+      - name: backend
+        image: ${ECR_URL}/afrimart-backend:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: DB_HOST
+          value: ${RDS_ENDPOINT}
+        - name: REDIS_HOST
+          value: ${REDIS_ENDPOINT}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: afrimart-backend-svc
+  namespace: afrimart
+spec:
+  selector:
+    app: afrimart-backend
+  ports:
+  - port: 80
+    targetPort: 5000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: afrimart-frontend
+  namespace: afrimart
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: afrimart-frontend
+  template:
+    metadata:
+      labels:
+        app: afrimart-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: ${ECR_URL}/afrimart-frontend:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: afrimart-frontend-svc
+  namespace: afrimart
+spec:
+  selector:
+    app: afrimart-frontend
+  ports:
+  - port: 80
+    targetPort: 80
+  type: LoadBalancer

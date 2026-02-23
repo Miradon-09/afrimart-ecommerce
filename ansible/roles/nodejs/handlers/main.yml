@@ -1,0 +1,12 @@
+---
+# Node.js handlers
+
+- name: restart app
+  service:
+    name: afrimart-app
+    state: restarted
+    enabled: yes
+
+- name: daemon reload
+  systemd:
+    daemon_reload: yes

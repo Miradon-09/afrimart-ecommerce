@@ -1,0 +1,38 @@
+---
+# Ansible Inventory - AWS EC2 Plugin (Dynamic)
+# This inventory automatically discovers AWS EC2 instances with tag: Name=afrimart-*
+
+plugin: amazon.aws.aws_ec2
+
+# AWS regions to search
+regions:
+  - us-east-1
+
+# Filter to find AfriMart instances
+filters:
+  tag:Name: "afrimart-*"
+  instance-state-name: running
+
+# Keyed groups to organize hosts by tags
+keyed_groups:
+  - key: tags.Name
+    prefix: tag
+    separator: _
+  - key: placement.availability_zone
+    prefix: az
+
+# Compose variables from EC2 attributes
+compose:
+  ansible_host: private_ip_address
+  aws_instance_id: instance_id
+  aws_instance_type: instance_type
+  aws_availability_zone: placement.availability_zone
+
+# Group by instance type
+groups:
+  webservers: '"afrimart" in tags.Name'
+  appservers: '"afrimart" in tags.Name'
+  databases: '"afrimart" in tags.Name and "db" in tags.Name'
+
+# Strict host naming
+strict: False

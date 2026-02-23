@@ -1,0 +1,39 @@
+---
+# Application server specific variables
+
+# Node.js configuration
+nodejs_version: 18.x
+nodejs_npm_version: latest
+
+# Application settings
+app_port: 3000
+app_name: afrimart-api
+app_repo: https://github.com/your-org/afrimart-backend.git
+app_repo_branch: main
+
+# PM2 process manager
+pm2_apps:
+  - name: "{{ app_name }}"
+    script: "{{ app_home }}/src/server.js"
+    instances: auto
+    exec_mode: cluster
+    env:
+      NODE_ENV: "{{ app_environment }}"
+
+# Database connection
+db_host: "afrimart-db.cipwciweg2lb.us-east-1.rds.amazonaws.com"
+db_port: 5432
+db_name: afrimart
+db_user: afrimart
+
+# Environment variables
+app_env_vars:
+  NODE_ENV: "{{ app_environment }}"
+  PORT: "{{ app_port }}"
+  DB_HOST: "{{ db_host }}"
+  DB_PORT: "{{ db_port }}"
+  DB_NAME: "{{ db_name }}"
+  DB_USER: "{{ db_user }}"
+  REDIS_HOST: "afrimart-redis.hm11x6.0001.use1.cache.amazonaws.com"
+  REDIS_PORT: 6379
+  LOG_LEVEL: "{{ log_level | default('info') }}"

@@ -1,0 +1,16 @@
+# Static Inventory - Staging Environment
+
+[webservers]
+web-staging-1 ansible_host=172.16.101.10
+web-staging-2 ansible_host=172.16.102.10
+
+[appservers]
+app-staging-1 ansible_host=172.16.3.10
+app-staging-2 ansible_host=172.16.4.10
+
+[databases]
+db-staging-1 ansible_host=172.16.3.20
+
+[all:vars]
+ansible_user=ec2-user
+ansible_ssh_private_key_file=~/.ssh/afrimart-key

@@ -1,0 +1,9 @@
+variable "region" { default = "us-east-1" }
+variable "project_name" { default = "afrimart" }
+variable "vpc_cidr" { default = "172.16.0.0/16" }
+variable "availability_zones" { default = ["us-east-1a", "us-east-1b"] }
+variable "public_subnets" { default = ["172.16.101.0/24", "172.16.102.0/24"] }
+variable "private_subnets" { default = ["172.16.3.0/24", "172.16.4.0/24"] }
+variable "db_username" { default = "afrimart" }
+variable "db_password" { sensitive = true }      # Pass this via CLI or .tfvars
+variable "key_name" { default = "afrimart-key" } # EC2 Key Pair name for SSH access

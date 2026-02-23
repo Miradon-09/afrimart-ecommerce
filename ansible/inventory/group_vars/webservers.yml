@@ -1,0 +1,26 @@
+---
+# Web server specific variables
+
+# Nginx configuration
+nginx_user: www-data
+nginx_port: 80
+nginx_ssl_port: 443
+enable_ssl: false
+server_name: "{{ inventory_hostname }}"
+
+# Upstream app servers
+upstream_servers: "{{ groups['appservers'] }}"
+upstream_port: 3000
+
+# Nginx settings
+nginx_worker_processes: auto
+nginx_worker_connections: 1024
+nginx_client_max_body_size: 100m
+
+# Reverse proxy cache
+enable_proxy_cache: true
+cache_path: /var/cache/nginx
+
+# Health check endpoint
+health_check_uri: /health
+health_check_interval: 10s

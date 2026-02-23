@@ -1,0 +1,24 @@
+---
+# Nginx installation and configuration
+
+- name: Install Nginx via amazon-linux-extras
+  shell: amazon-linux-extras install nginx1 -y
+  args:
+    creates: /usr/sbin/nginx
+  tags: [nginx, webservers]
+
+- name: Deploy Nginx configuration template
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    backup: yes
+    mode: "0644"
+  notify: restart nginx
+  tags: [nginx]
+
+- name: Start and enable Nginx
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+  tags: [nginx]

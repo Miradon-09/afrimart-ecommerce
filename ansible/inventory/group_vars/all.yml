@@ -1,0 +1,44 @@
+---
+# Global variables for all hosts
+
+# SSH and connectivity
+ansible_user: ec2-user
+ansible_ssh_private_key_file: ~/.ssh/afrimart-key
+ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+
+# Application settings
+app_user: afrimart
+app_group: afrimart
+app_home: /opt/afrimart
+app_environment: "{{ environment | default('staging') }}"
+
+# Package manager
+package_manager: yum
+packages_state: present
+
+# Common packages to install on all hosts
+common_packages:
+  - git
+  - curl
+  - wget
+  - vim
+  - htop
+  - net-tools
+  - telnet
+  - tree
+  - unzip
+  - awscli
+
+# System settings
+timezone: UTC
+selinux_state: disabled
+
+# Logging
+log_dir: /var/log/afrimart
+log_retention_days: 30
+
+# Infrastructure Endpoints
+rds_endpoint: "afrimart-db.cipwciweg2lb.us-east-1.rds.amazonaws.com:5432"
+redis_endpoint: "afrimart-redis.hm11x6.0001.use1.cache.amazonaws.com"
+s3_bucket: "afrimart-uploads-20260223122904505300000001"
+

@@ -1,0 +1,70 @@
+---
+# Monitoring setup - node_exporter and observability
+
+- name: Download node_exporter
+  get_url:
+    url: "https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-amd64.tar.gz"
+    dest: /tmp/node_exporter.tar.gz
+    mode: "0755"
+  tags: [monitoring]
+
+- name: Extract node_exporter
+  unarchive:
+    src: /tmp/node_exporter.tar.gz
+    dest: /tmp
+    remote_src: yes
+  tags: [monitoring]
+
+- name: Install node_exporter
+  copy:
+    src: /tmp/node_exporter-1.6.1.linux-amd64/node_exporter
+    dest: /usr/local/bin/node_exporter
+    remote_src: yes
+    mode: "0755"
+  tags: [monitoring]
+
+- name: Create prometheus user
+  user:
+    name: prometheus
+    state: present
+    home: /var/lib/prometheus
+    shell: /sbin/nologin
+    system: yes
+  tags: [monitoring]
+
+- name: Create node_exporter systemd service
+  copy:
+    content: |
+      [Unit]
+      Description=Prometheus Node Exporter
+      After=network.target
+
+      [Service]
+      Type=simple
+      User=prometheus
+      ExecStart=/usr/local/bin/node_exporter
+      Restart=on-failure
+
+      [Install]
+      WantedBy=multi-user.target
+    dest: /etc/systemd/system/node_exporter.service
+    mode: "0644"
+  notify: reload and restart node_exporter
+  tags: [monitoring]
+
+- name: Reload systemd and start node_exporter
+  systemd:
+    daemon_reload: yes
+    name: node_exporter
+    state: started
+    enabled: yes
+  tags: [monitoring]
+
+- name: Verify node_exporter is running
+  uri:
+    url: "http://localhost:9100/metrics"
+    method: GET
+    status_code: 200
+  retries: 3
+  delay: 5
+  tags: [monitoring]

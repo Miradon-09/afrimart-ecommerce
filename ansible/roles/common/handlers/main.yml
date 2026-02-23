@@ -1,0 +1,8 @@
+---
+# Common handlers
+
+- name: restart system
+  reboot:
+    msg: "Reboot initiated by Ansible"
+    connect_timeout: 5
+    reboot_timeout: 600
