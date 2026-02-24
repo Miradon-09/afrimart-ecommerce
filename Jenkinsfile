@@ -17,18 +17,12 @@ pipeline {
         }
 
         stage('Install Dependencies') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true
-                }
-            }
             steps {
                 dir('backend') {
-                    sh 'npm install'
+                    sh 'npm install --engine-strict=false'
                 }
                 dir('frontend') {
-                    sh 'npm install'
+                    sh 'npm install --engine-strict=false'
                 }
             }
         }
